@@ -1,0 +1,83 @@
+package pkg1;
+
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+
+public class MyMain {
+
+	static WebDriver driver;
+
+	public static void main(String[] args) {
+		
+		tetstSerchAmazon();
+		
+	}/////////////////////////////////
+	
+	static void tetstSerchGoogle() {
+		System.out.println("-----------");
+
+		// if we downloaded the driver manually we use this code:
+		// System.setProperty("webdriver.chrome.driver","chromedriver.exe");
+
+		// if we DIDN'T download the driver manually we use this code:
+		WebDriverManager.chromedriver().setup();
+
+		driver = new ChromeDriver(new ChromeOptions().addArguments("--remote-allow-origins=*"));
+		driver.get("https://www.google.com");
+
+		driver.findElement(By.cssSelector(".gLFyf")).sendKeys("Koala"+Keys.ENTER);
+		
+		String st1 = driver.findElement(By.cssSelector("#result-stats")).getText();
+		System.out.println(st1);
+		
+		driver.quit();
+	}
+	
+	
+	static void tetstSerchAmazon() {
+		WebDriverManager.chromedriver().setup();
+
+		driver = new ChromeDriver(new ChromeOptions().addArguments("--remote-allow-origins=*"));
+		// להיכנס לאמזון
+		driver.get("https://www.amazon.com");
+		
+		// יעצור את התוכנית ל30 שניות (מאפשר להקליד את הקוד ידנית)
+		try {
+			Thread.sleep(20000);
+		} 
+		catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		// חיפוש הספר
+		driver.findElement(By.cssSelector("#twotabsearchtextbox")).sendKeys("Harry Potter and the Order of the Phoenix");
+		
+		// הקלקלה על כפתור החיפוש
+		driver.findElement(By.cssSelector("#nav-search-submit-button")).click();
+		
+		// מיצאת כמות התוצאות
+		String str1 = driver.findElement(By.cssSelector("[class=\"a-section a-spacing-small a-spacing-top-small\"]")).getText();
+		String str2 = (str1.split(" "))[2];
+		System.out.println(str2);
+		
+		//חיפוש כל הספרים באנגלית
+		driver.findElement(By.cssSelector("[id=\"topRefinements/0\"] [class=\"a-size-base a-color-base\"]")).click();
+		
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[id=\"p_n_feature_nine_browse-bin/3291437011\"] [class=\"a-size-base a-color-base\"]")));
+		        
+		driver.findElement(By.cssSelector("[id=\"p_n_feature_nine_browse-bin/3291437011\"] [class=\"a-size-base a-color-base\"]")).click();
+
+		
+		driver.quit();
+	}		
+}

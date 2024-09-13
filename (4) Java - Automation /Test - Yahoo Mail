@@ -1,0 +1,103 @@
+package pkg1;
+
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+
+public class MyMain {
+	
+	static WebDriver driver;
+	static WebDriverWait wait;
+
+	public static void main(String[] args) {
+		WebDriverManager.chromedriver().setup();
+		driver = new ChromeDriver(new ChromeOptions().addArguments("--remote-allow-origins=*"));
+		wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+		TestCasePasswordTooShort();
+		TestCasePasswordEasyShort();
+		TestCaseDayNotExist();
+		TestCasePositive();
+		
+	}//////////////////////////////
+//-------------------------------------------------------------------
+//-------------------------------------------------------------------
+	static void TestCaseGoToSignUpPage() {
+		driver.get("https://www.yahoo.com/");
+		driver.findElement(By.cssSelector("#ybarMailLink")).click();
+		driver.findElement(By.cssSelector("#createacc")).click();		
+	}
+//-------------------------------------------------------------------
+//-------------------------------------------------------------------
+	static void TestCasePasswordTooShort() {
+		helperForPassword("Hello", "Not strong enough. Try adding characters.", "TestCasePasswordTooShort");
+	}
+//-------------------------------------------------------------------
+//-------------------------------------------------------------------
+	static void TestCasePasswordEasyShort() {
+		helperForPassword("123456789", "Can be guessed easily. Try something else.", "TestCasePasswordEasyShort");
+	}
+//-------------------------------------------------------------------
+//-------------------------------------------------------------------
+	static void TestCaseDayNotExist() {
+		String thePgeUrl = "https://login.yahoo.com/account/create?.intl=us&.lang=en-US&src=ym&activity=mail-direct&pspid=159600001&.done=https%3A%2F%2Fmail.yahoo.com%2Fd&specId=yidregsimplified&done=https%3A%2F%2Fmail.yahoo.com%2Fd";
+		driver.get(thePgeUrl);		
+
+		Select sel = new Select (driver.findElement(By.cssSelector("#usernamereg-month")));
+		sel.selectByValue("1");
+		driver.findElement(By.cssSelector("#usernamereg-day")).sendKeys("32");
+		driver.findElement(By.cssSelector("#usernamereg-year")).sendKeys("2001");
+		
+		driver.findElement(By.cssSelector("#Stencil")).click();	
+		
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#reg-error-birthDate")));
+
+		String str1 = driver.findElement(By.cssSelector("#reg-error-birthDate")).getText();
+		if (!str1.contains("That doesn’t look right, please re-enter your birthday.")) {
+			System.out.println("TestCaseDayNotExist FAILED");
+		}		
+		else {
+			System.out.println("TestCaseDayNotExist PASSED");
+		}	
+	}
+//-------------------------------------------------------------------
+//-------------------------------------------------------------------
+	static void TestCasePositive() {
+		String thePgeUrl = "https://login.yahoo.com/account/create?.intl=us&.lang=en-US&src=ym&activity=mail-direct&pspid=159600001&.done=https%3A%2F%2Fmail.yahoo.com%2Fd&specId=yidregsimplified&done=https%3A%2F%2Fmail.yahoo.com%2Fd";
+		driver.get(thePgeUrl);
+		
+		
+		
+		
+		
+	}
+//-------------------------------------------------------------------
+//-------------------------------------------------------------------
+	static void helperForPassword(String x, String y, String z){
+		
+		String thePgeUrl = "https://login.yahoo.com/account/create?.intl=us&.lang=en-US&src=ym&activity=mail-direct&pspid=159600001&.done=https%3A%2F%2Fmail.yahoo.com%2Fd&specId=yidregsimplified&done=https%3A%2F%2Fmail.yahoo.com%2Fd";
+		driver.get(thePgeUrl);	
+		
+		driver.findElement(By.cssSelector("#usernamereg-password")).sendKeys(x);
+		driver.findElement(By.cssSelector("#Stencil")).click();	
+		
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#reg-error-password")));
+
+		String str1 = driver.findElement(By.cssSelector("#reg-error-password")).getText();
+		if (!str1.contains(y)) {
+			System.out.println(z + " FAILED");
+		}
+		else {
+			System.out.println(z + " PASSED");
+		}
+	}
+}////////////////////////
